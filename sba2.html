@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+    <title>Speed Test</title>
+</head>
+<body>
+    <div>
+        <h2 style="background-color:tomato; color:white">WST Speed</h2>
+    </div>
+    <script>
+        var arrTimes = []; // Array to store test times
+        var i = 0; // Start index
+        var timesToTest = 5; // Number of tests to perform
+        var tThreshold = 150; // ms threshold for fast connection
+        var testImage = "http://www.google.com/images/phd/px.gif"; // Small test image
+        var dummyImage = new Image();
+        var isConnectedFast = false;
+
+        // Start latency test and handle results
+        testLatency(function(avg) {
+            isConnectedFast = (avg <= tThreshold);
+
+            // Display results
+            document.body.appendChild(
+                document.createTextNode(
+                    "Time: " + avg.toFixed(2) + "ms. isConnectedFast? " + isConnectedFast
+                )
+            );
+        });
+
+        function testLatency(callback) {
+            var tStart = new Date().getTime();
+
+            dummyImage.src = testImage + "?t=" + tStart;
+            dummyImage.onload = function() {
+                var tEnd = new Date().getTime();
+                var tTimeTook = tEnd - tStart;
+
+                arrTimes.push(tTimeTook);
+                i++;
+
+                if (i < timesToTest) {
+                    // Continue testing until reaching timesToTest
+                    testLatency(callback);
+                } else {
+                    // Compute average latency and pass it to the callback
+                    var sum = arrTimes.reduce((a, b) => a + b, 0);
+                    var avg = sum / arrTimes.length;
+                    callback(avg);
+                }
+            };
+
+            dummyImage.onerror = function() {
+                document.body.appendChild(
+                    document.createTextNode("Error loading test image.")
+                );
+            };
+        }
+    </script>
+</body>
+</html>
